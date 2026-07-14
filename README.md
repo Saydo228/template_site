@@ -1,21 +1,23 @@
 # Endpoint reachability checker
 
-Скрипт `check_endpoints.py` проверяет с хоста, где запущен, есть ли **сетевой доступ** до URL из колонки `driver.endpoint` CSV.
+## Файлы для копирования на сервер
 
-## Запуск на сервере
+1. `endpoints.txt` — уникальные HTTP(S) URL (один на строку)
+2. `check_endpoints.py` — скрипт проверки
+
+## Запуск
 
 ```bash
-# зависимости не нужны — только Python 3.8+
-python3 check_endpoints.py paycom_merchants_for_apm.csv
-
-# быстрее / для внутренних https без валидного сертификата
-python3 check_endpoints.py paycom_merchants_for_apm.csv -w 100 -t 5 --insecure
+python3 check_endpoints.py endpoints.txt -w 100 -t 5 --insecure
 ```
 
 ## Результат
 
-- `results_all.csv` — все проверки
-- `results_unreachable.csv` — только URL **без** сетевого доступа
+| Файл | Содержимое |
+|------|------------|
+| `reachable.txt` | URL с сетевым доступом |
+| `unreachable.txt` | URL без сетевого доступа |
+| `results_all.csv` | полный отчёт (статус, код, ошибка) |
 
-Считается что доступ **есть**, если получен любой HTTP-ответ (включая 401/403/404/500) или ошибка SSL после установки соединения.  
-Считается что доступа **нет**: timeout, DNS error, connection refused, network unreachable.
+Доступ **есть**: любой HTTP-ответ (в т.ч. 401/404/500) или SSL-ошибка после TCP.  
+Доступа **нет**: timeout / DNS / connection refused / network unreachable.
