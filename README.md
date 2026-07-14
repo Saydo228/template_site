@@ -1,23 +1,27 @@
-# Endpoint reachability checker
+# Endpoint lists
 
-## Файлы для копирования на сервер
+## Основные файлы
 
-1. `endpoints.txt` — уникальные HTTP(S) URL (один на строку)
-2. `check_endpoints.py` — скрипт проверки
+| Файл | Что внутри |
+|------|------------|
+| `endpoints.txt` | 4133 уникальных URL, по одному на строку (для `check_endpoints.py`) |
+| `endpoints_sorted.csv` | все 6982 строки мерчантов, **отсортированы для фильтрации** |
+| `endpoints_unique_sorted.csv` | 4133 уникальных endpoint, тот же порядок |
+| `check_endpoints.py` | проверка сетевого доступа |
 
-## Запуск
+## Порядок сортировки в `*_sorted.csv`
+
+1. **host_type** — `private_ip` → `public_ip` → `domain`
+2. **host_group** — подсеть `/24` для IP, apex-домен для DNS
+3. **host** → **port** → **path/endpoint**
+4. **organization** → **name**
+
+Доп. колонки для фильтра в Excel: `host_type`, `host_group`, `host`, `port`, `scheme`, `path`.
+
+## Проверка доступа
 
 ```bash
-python3 check_endpoints.py endpoints.txt -w 100 -t 5 --insecure
+python3 check_endpoints.py endpoints.txt -w 5 -t 5 --insecure
 ```
 
-## Результат
-
-| Файл | Содержимое |
-|------|------------|
-| `reachable.txt` | URL с сетевым доступом |
-| `unreachable.txt` | URL без сетевого доступа |
-| `results_all.csv` | полный отчёт (статус, код, ошибка) |
-
-Доступ **есть**: любой HTTP-ответ (в т.ч. 401/404/500) или SSL-ошибка после TCP.  
-Доступа **нет**: timeout / DNS / connection refused / network unreachable.
+Результат: `reachable.txt`, `unreachable.txt`, `results_all.csv`.
